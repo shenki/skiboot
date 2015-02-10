@@ -58,6 +58,8 @@ enum proc_gen proc_gen;
 static uint64_t kernel_entry;
 static bool kernel_32bit;
 
+static struct cpu_job *payload_job = NULL;
+
 struct debug_descriptor debug_descriptor = {
 	.eye_catcher	= "OPALdbug",
 	.version	= DEBUG_DESC_VERSION,
@@ -353,6 +355,32 @@ static void load_initramfs(void)
 			(uint64_t)INITRAMFS_LOAD_BASE + size);
 }
 
+static void load_resources(void *data __unused)
+{
+	if (!load_kernel()) {
+		op_display(OP_FATAL, OP_MOD_INIT, 1);
+		abort();
+	}
+
+	load_initramfs();
+}
+
+static void load_boot_payload(void)
+{
+	struct cpu_thread *cpu = first_available_cpu();
+
+	while (cpu) {
+		if (cpu != this_cpu())
+			break;
+
+		cpu = next_available_cpu(cpu);
+		if (!cpu)
+			cpu = first_available_cpu();
+	}
+
+	payload_job = cpu_queue_job(cpu, load_resources, NULL);
+}
+
 void __noreturn load_and_boot_kernel(bool is_reboot)
 {
 	const struct dt_property *memprop;
@@ -371,13 +399,11 @@ void __noreturn load_and_boot_kernel(bool is_reboot)
 	if (platform.exit)
 		platform.exit();
 
-	/* Load kernel LID */
-	if (!load_kernel()) {
-		op_display(OP_FATAL, OP_MOD_INIT, 1);
-		abort();
-	}
-
-	load_initramfs();
+	/* Wait for kernel and initramfs load to complete. */
+	if (payload_job)
+		cpu_wait_job(payload_job, true);
+	else
+		load_resources(NULL);
 
 	if (!is_reboot) {
 		/* We wait for the nvram read to complete here so we can
@@ -656,6 +682,9 @@ void __noreturn main_cpu_entry(const void *fdt, u32 master_cpu)
 
 	/* Read in NVRAM and set it up */
 	nvram_init();
+
+	/* Asynchronously load kernel and initramfs */
+	load_boot_payload();
 
 	/* NX init */
 	nx_init();
