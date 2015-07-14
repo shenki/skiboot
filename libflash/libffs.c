@@ -34,7 +34,6 @@ enum ffs_type {
 };
 
 struct ffs_handle {
-	struct ffs_hdr		hdr;	/* Converted header */
 	enum ffs_type		type;
 	struct flash_chip	*chip;
 	uint32_t		toc_offset;
@@ -42,6 +41,7 @@ struct ffs_handle {
 	void			*cache;
 	uint32_t		cached_size;
 	struct blocklevel_device *bl;
+	struct ffs_hdr		hdr;	/* Converted header */
 };
 
 static uint32_t ffs_checksum(void* data, size_t size)
