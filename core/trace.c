@@ -33,8 +33,8 @@
 /* Smaller trace buffer for early booting */
 #define BOOT_TBUF_SZ 65536
 static struct {
-	struct trace_info trace_info;
 	char buf[BOOT_TBUF_SZ + MAX_SIZE];
+	struct trace_info trace_info;
 } boot_tracebuf;
 
 void init_boot_tracebuf(struct cpu_thread *boot_cpu)
