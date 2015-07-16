@@ -51,7 +51,7 @@ CPPFLAGS += -DBITS_PER_LONG=64 -DHAVE_BIG_ENDIAN
 CPPFLAGS += -ffreestanding
 
 CFLAGS := -fno-strict-aliasing -fstack-protector-all -pie -mbig-endian -m64
-CFLAGS += -Wl,--oformat,elf64-powerpc
+CFLAGS += -Wl,--oformat,elf64-powerpc -std=gnu11
 
 ifeq ($(SKIBOOT_GCOV),1)
 CFLAGS += -fprofile-arcs -ftest-coverage -DSKIBOOT_GCOV=1
