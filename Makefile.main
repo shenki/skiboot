@@ -146,10 +146,8 @@ AFLAGS += $(call try-cflag,$(CC),-mabi=elfv1)
 endif
 
 ifeq ($(cc-name),clang)
-ifneq ($(CROSS),)
-CLANG_TARGET    := --target=$(notdir $(CROSS:%-=%))
+CLANG_TARGET    := --target=powerpc64-linux-gnu
 GCC_TOOLCHAIN   := $(realpath $(dir $(shell which $(LD)))/..)
-endif
 ifneq ($(GCC_TOOLCHAIN),)
 CLANG_GCC_TC    := --gcc-toolchain=$(GCC_TOOLCHAIN)
 endif
