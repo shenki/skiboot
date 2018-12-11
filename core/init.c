@@ -80,7 +80,7 @@ struct debug_descriptor debug_descriptor = {
 #ifdef DEBUG
 	.console_log_levels = (PR_TRACE << 4) | PR_DEBUG,
 #else
-	.console_log_levels = (PR_ERR << 4) | PR_NOTICE,
+	.console_log_levels = (PR_DEBUG << 4) | PR_NOTICE,
 #endif
 };
 
