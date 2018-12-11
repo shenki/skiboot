@@ -24,7 +24,7 @@ proc mconfig { name env_name def } {
 }
 
 mconfig cpus CPUS 1
-mconfig threads THREADS 1
+mconfig threads THREADS 4
 mconfig memory MEM_SIZE 4G
 
 # Create multiple memory nodes? This will create a MEM_SIZE region
@@ -342,6 +342,10 @@ for { set c 0 } { $c < $mconf(cpus) } { incr c } {
     mysim of addprop $cpu_node array64 "ibm,processor-segment-sizes" reg
 
     mysim of addprop $cpu_node int "ibm,chip-id" $c
+
+    set reg {}
+    lappend reg 1 2 2 0 1 2 3
+    mysim of addprop $cpu_node array "ibm,thread-groups" reg
 
     # Create a chip node to tell skiboot to create another chip for this CPU.
     # This bubbles up to Linux which will then see a new chip (aka nid).
